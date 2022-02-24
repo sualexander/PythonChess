@@ -1,7 +1,8 @@
 from chess import *
+
 import random
 
-def update_move(board,black_move):
+def update_game(black_move):
     white_move = False
     pieces = []
     moves = []

@@ -1,13 +1,17 @@
-import chess
+import human
 import computer
 
-if __name__ == "__main__":
-    chess.make_boards()
-    chess.start_game()
-
 running = True
+#ask pvp or pvcomputer
 white_move = True
+
+
 while running:
-    board = chess.update_game(white_move)
+
+    human.update_game(white_move)
     white_move = not white_move
-    white_move = computer.update_move(board,white_move)
+
+    computer.update_game(white_move)
+    white_move = not white_move
+
+
