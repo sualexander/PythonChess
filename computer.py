@@ -35,4 +35,7 @@ def update_game(black_move):
             valid_moves += castle_squares
         #moves.append(valid_moves)
         update_board(i,random.choice(valid_moves),False)
-        return not black_move
+        return not
+
+def minimax(board)
+    #get validmoves
