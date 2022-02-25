@@ -11,26 +11,26 @@ def update_move(white_move):
     piece = input("which piece?")  # eg: e4
 
     piece_index = num_to_index(piece)
-    if (board.chess_board[piece_index[0]][piece_index[1]] < 0) == white_move:
+    if (real_board.chess_board[piece_index[0]][piece_index[1]] < 0) == white_move:
         print("wrong color")
         return True
-    piece_name = piece_lookup(piece_index)
+    piece_name = piece_lookup(real_board,piece_index)
     # returns array of allowed moves based on type of selected piece
-    valid_moves = valid(piece_name, piece_index)
+    valid_moves = valid(real_board,piece_name, piece_index)
     if not valid_moves:
         print("no valid moves")
         return True
     # en passant
     en_passant_squares = []
     if piece_name == "pawn":
-        en_passant_squares = en_passant(piece_index)
+        en_passant_squares = en_passant(real_board,piece_index)
         valid_moves += en_passant_squares
     # checks if move would allow discovered check
-    valid_moves = check_check(valid_moves, piece_index)
+    valid_moves = check_check(real_board,valid_moves, piece_index)
     # adds castling moves to valid_moves if allowed
     castle_squares = []
     if piece_name == "king":
-        castle_squares = castle(piece_index)
+        castle_squares = castle(real_board,piece_index)
         valid_moves += castle_squares
     if not valid_moves:
         print("no valid moves")
@@ -47,16 +47,16 @@ def update_move(white_move):
             promotion = False
         # en passant
         if move_index in en_passant_squares:
-            board.chess_board[board.past_move[1][0]][board.past_move[1][1]] = 0
+            real_board.chess_board[real_board.past_move[1][0]][real_board.past_move[1][1]] = 0
         # castling
         elif move_index in castle_squares:
-            move_rook(move_index)
+            move_rook(real_board,move_index)
 
-        update_board(board.chess_board,piece_index, move_index, promotion)
-        if deliver_check(move_index):
-            if check_mate(move_index):
+        update_board(real_board,piece_index, move_index, promotion)
+        if deliver_check(real_board,move_index):
+            if check_mate(real_board,move_index):
                 # check for draw
-                if check_mate(move_index * -1):
+                if check_mate(real_board,move_index * -1):
                     print("STALEMATE!")
                     exit()
                 else:

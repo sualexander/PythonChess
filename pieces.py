@@ -1,6 +1,6 @@
 from globals import *
 
-def get_diagonals(piece_index):
+def get_diagonals(board,piece_index):
     valid_moves = []
     row = piece_index[0]
     col = piece_index[1]
@@ -42,7 +42,7 @@ def get_diagonals(piece_index):
             break
     return valid_moves
 
-def get_colrows(piece_index):
+def get_colrows(board,piece_index):
     valid_moves = []
     row = piece_index[0]
     col = piece_index[1]
@@ -70,16 +70,16 @@ def get_colrows(piece_index):
     return valid_moves
 #####################################################
 
-def rook(piece_index):
-    return get_colrows(piece_index)
+def rook(board,piece_index):
+    return get_colrows(board,piece_index)
 
-def bishop(piece_index):
-    return get_diagonals(piece_index)
+def bishop(board,piece_index):
+    return get_diagonals(board,piece_index)
 
-def queen(piece_index):
-    return get_colrows(piece_index) + get_diagonals(piece_index)
+def queen(board,piece_index):
+    return get_colrows(board,piece_index) + get_diagonals(board,piece_index)
 
-def king(piece_index):
+def king(board,piece_index):
     valid_moves = []
     row = piece_index[0]
     col = piece_index[1]
@@ -90,7 +90,7 @@ def king(piece_index):
                 valid_moves.append([row - 1 + i,col - 1 + j])
     return valid_moves
 
-def knight(piece_index):
+def knight(board,piece_index):
     valid_moves = []
     row = piece_index[0]
     col = piece_index[1]
@@ -102,7 +102,7 @@ def knight(piece_index):
                     valid_moves.append([row - 2 + i,col - 2 + j])
     return valid_moves
 
-def pawn(piece_index):
+def pawn(board,piece_index):
     valid_moves = []
     row = piece_index[0]
     col = piece_index[1]

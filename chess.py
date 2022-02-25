@@ -10,7 +10,7 @@ def print_board(white_move):
     for i in range(8):
         row_pic = []
         for j in range(8):
-            pic = num_to_display.get(board.chess_board[i][j], "--")
+            pic = num_to_display.get(real_board.chess_board[i][j], "--")
             row_pic.append(pic)
         print(row_pic)
 #converts chess index to list index
@@ -23,7 +23,7 @@ def num_to_index(num):
     else:
         return [10,10]
 #converts move index to piece name at target square
-def piece_lookup(piece_index):
+def piece_lookup(board,piece_index):
     for i in range(8):
         for j in range(8):
             if [i,j] == piece_index:
@@ -33,13 +33,29 @@ def piece_lookup(piece_index):
                 return piece_name
     return "none"
 #gets list of valid moves
-def valid(piece_name, piece_index):
+def valid(board,piece_name,piece_index):
     if piece_name != "none":
-        return remove_negative(globals()[piece_name](piece_index))
+        return remove_negative(pieces(piece_name,board,piece_index))
     else:
         print("invalid selection")
         return
+def pieces(piece_name,board,piece_index):
+    match piece_name:
+        case "rook":
+            return rook(board,piece_index)
+        case "knight":
+            return knight(board,piece_index)
+        case "bishop":
+            return bishop(board,piece_index)
+        case "queen":
+            return queen(board,piece_index)
+        case "king":
+            return king(board,piece_index)
+        case "pawn":
+            return pawn(board,piece_index)
 def remove_negative(valid_moves):
+    #if not valid_moves:
+        #return valid_moves
     temp_moves = valid_moves.copy()
     for i in valid_moves:
         if i[0] < 0 or i[1] < 0:
@@ -49,14 +65,16 @@ def remove_negative(valid_moves):
     valid_moves = temp_moves
     return valid_moves
 #modifies valid_moves so that a move cannot lead to check
-def check_check(valid_moves,piece_index):
+def check_check(board,valid_moves,piece_index):
     index = []
     for i in range(8):
         for j in range(8):
             if board.chess_board[i][j] * board.chess_board[piece_index[0]][piece_index[1]] < 0:
                 index.append([i, j])
-            elif abs(board.chess_board[i][j]) == 5:
+            if (abs(board.chess_board[i][j]) == 5) and (board.chess_board[piece_index[0]][piece_index[1]] * board.chess_board[i][j] > 0):
                 king = [i, j]
+    if not king:
+        breakpoint()
     temp_moves = valid_moves.copy()
     temp_index = king
     for x in valid_moves:
@@ -67,7 +85,7 @@ def check_check(valid_moves,piece_index):
         board.chess_board[piece_index[0]][piece_index[1]] = 0
 
         for i in index:
-            valid_squares = valid(piece_lookup(i), i)
+            valid_squares = valid(board,piece_lookup(board,i), i)
             if king in valid_squares:
                 temp_moves.remove(x)
                 break
@@ -81,7 +99,7 @@ def check_check(valid_moves,piece_index):
 def compare(valid_moves,move_index):
     if move_index in valid_moves:
         return True
-def deliver_check(move_index):
+def deliver_check(board,move_index):
     index = []
     for i in range(8):
         for j in range(8):
@@ -90,11 +108,11 @@ def deliver_check(move_index):
             elif abs(board.chess_board[i][j]) == 5:
                 king = [i, j]
     for i in index:
-        valid_squares = valid(piece_lookup(i),i)
+        valid_squares = valid(board,piece_lookup(board,i),i)
         if king in valid_squares:
             return True
     return False
-def check_mate(move_index):
+def check_mate(board,move_index):
     index = []
     escape_moves = []
     for i in range(8):
@@ -115,7 +133,7 @@ def update_board(board,piece_index,move_index,promotion):
     if promotion:
         abrv = pawn_promotion(piece_index)
     else:
-        abrv = board[piece_index[0]][piece_index[1]]
+        abrv = board.chess_board[piece_index[0]][piece_index[1]]
     #en passant
     board.past_move = [piece_index,move_index]
     #checks if user has moved rooks or king or if rooks has been captured for castling
@@ -134,10 +152,16 @@ def update_board(board,piece_index,move_index,promotion):
         elif (abrv == -1 and piece_index[1] == 7) or (board.chess_board[0][7] != -1):
             board.bcan_castle[1] = 0
     #modifies board with player move
+    past = board.chess_board[move_index[0]][move_index[1]]
     board.chess_board[move_index[0]][move_index[1]] = abrv
     board.chess_board[piece_index[0]][piece_index[1]] = 0
+    return abrv, past
 
-def move_rook(move_index):
+def unupdate_board(board,piece_index,move_index,current, past):
+    board.chess_board[piece_index[0]][piece_index[1]] = current
+    board.chess_board[move_index[0]][move_index[1]] = past
+
+def move_rook(board,move_index):
     #queenside
     if move_index[1] == 2:
         update_board(board.chess_board,[move_index[0],0],[move_index[0],3],False)
@@ -145,7 +169,7 @@ def move_rook(move_index):
     else: #move_index[1] == 6:
         update_board([board.chess_board,move_index[0],7],[move_index[0],5], False)
     return
-def castle(piece_index):
+def castle(board,piece_index):
     valid_moves = []
     if board.chess_board[piece_index[0]][piece_index[1]] > 0:
         xcan_castle = board.wcan_castle
@@ -155,16 +179,16 @@ def castle(piece_index):
         #queenside
         n = -1
         s = 1
-        if any_castle(piece_index,n,s):
+        if any_castle(board,piece_index,n,s):
             valid_moves.append([piece_index[0], piece_index[1] - 2])
     if xcan_castle[1] == 1:
         #kingside
         n = 1
         s = 2
-        if any_castle(piece_index,n,s):
+        if any_castle(board,piece_index,n,s):
             valid_moves.append([piece_index[0], piece_index[1] + 2])
     return valid_moves
-def any_castle(piece_index,n,s):
+def any_castle(board,piece_index,n,s):
     squares = []
     #no pieces in between rook and king
     for i in range(piece_index[1]-s):
@@ -175,11 +199,11 @@ def any_castle(piece_index,n,s):
     #squares between rook and king inclusive cannot be in check or will be in check
     squares.append([piece_index[0],piece_index[1]+(piece_index[1]-s+1)*n])
     squares.append([piece_index[0],piece_index[1]])
-    if check_check(squares,piece_index) != squares:
+    if check_check(board,squares,piece_index) != squares:
         return False
     else:
         return True
-def pawn_promotion(piece_index):
+def pawn_promotion(board,piece_index):
     not_valid = True
     while not_valid:
         promote = input("promote?")
@@ -207,7 +231,7 @@ def pawn_promotion(piece_index):
             print("invalid selection")
             not_valid = True
     return abrv
-def en_passant(piece_index):
+def en_passant(board,piece_index):
     valid_moves = []
     if board.past_move[0][0] == 1:
         n = 1
