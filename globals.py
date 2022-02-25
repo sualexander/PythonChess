@@ -18,9 +18,10 @@ for i in range(8):
     board.chess_board[1][i] = -6
     board.chess_board[6][i] = 6
 
-chess_board_num = []
+#corresponding array of square names eg: e4
+board_num = []
 for i in range(8):
-    chess_board_num.append([chr(97 + j) + str(8 - i) for j in range(8)])
+    board_num.append([chr(97 + j) + str(8 - i) for j in range(8)])
 
 print(board.chess_board)
 

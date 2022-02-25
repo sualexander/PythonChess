@@ -2,7 +2,7 @@ import human
 import computer
 
 running = True
-#ask pvp or pvcomputer
+# ask pvp or pvcomputer
 white_move = True
 
 
