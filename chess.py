@@ -73,8 +73,7 @@ def check_check(board,valid_moves,piece_index):
                 index.append([i, j])
             if (abs(board.chess_board[i][j]) == 5) and (board.chess_board[piece_index[0]][piece_index[1]] * board.chess_board[i][j] > 0):
                 king = [i, j]
-    if not king:
-        breakpoint()
+
     temp_moves = valid_moves.copy()
     temp_index = king
     for x in valid_moves:

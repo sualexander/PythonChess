@@ -1,11 +1,10 @@
-import dataclasses
 import math
 import random
 
 from chess import *
 
 def update_game(white_move):
-    move = minimax(real_board, True, 3, white_move)[1]
+    move = minimax(real_board, True, 4, white_move)[1]
     update_board(real_board,move[0], move[1], False)
 
 def get_valid_moves(board,white_move):
@@ -35,7 +34,7 @@ def minimax(board, maximizer, depth, white_move):
     if depth == 0:
         return evaluate(board, white_move), None
     moves = get_valid_moves(board,white_move)
-    best_move = random.choice(moves)
+    best_move = moves[0]
     if maximizer:
         max_value = -math.inf
         for i in moves:
@@ -49,8 +48,9 @@ def minimax(board, maximizer, depth, white_move):
     else:
         min_value = math.inf
         for i in moves:
-            update_board(board, i[0], i[1], False)
-            value = minimax(board, False, depth-1, not white_move)[0]
+            unmake = update_board(board, i[0], i[1], False)
+            value = minimax(board, True, depth-1, not white_move)[0]
+            unupdate_board(board, i[0], i[1], unmake[0], unmake[1])
             if value < min_value:
                 min_value = value
                 best_move = i
